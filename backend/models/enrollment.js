@@ -3,7 +3,7 @@ const sequelize = require('./db');
 
 const Enrollment = sequelize.define('Enrollment', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  staus: {
+  status: {
     type: DataTypes.ENUM('in_progress', 'completed'),
     defaultValue: 'in_progress',
   }
