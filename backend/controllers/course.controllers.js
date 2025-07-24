@@ -1,4 +1,6 @@
 const Course = require('../models/course');
+const Category = require('../models/category');
+const { slug } = require('../utils/slugify');
 
 const getAllCourses = async(req, res) => {
     try {
@@ -27,8 +29,23 @@ const getCourseById = async(req, res) => {
 
 const createCourse = async(req, res) => {
     try {
-        const {title, description, price, thumbnail_url } = req.body; 
-        const newCourse = await Course.create({ title: title, description: description, price: price, thumbnail_url: thumbnail_url });
+        const {title, description, price, thumbnail_url, category } = req.body; 
+        let categoryExists = await Category.findOne({ where: { name: category } });
+        if (!categoryExists) {
+            categoryExists = await Category.create({ 
+                name: category,
+                slug: slug(category), 
+            });
+        }
+
+        const newCourse = await Course.create({ 
+            title: title, 
+            description: description, 
+            price: price, 
+            thumbnail_url: thumbnail_url,
+            instructor_id: req.user.id, // attaching from isAuthenticated middleware
+            category_id: categoryExists.id // attaching category id
+        });
         res.status(201).send(newCourse);
     } catch (error) {
         console.error('Error creating courses:', error);

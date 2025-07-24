@@ -5,7 +5,7 @@ const checkIfInstructor = require('../utils/isInstructor');
 const isAuthenticated = require('../utils/isAuthenticated');
 
 
-router.get('/', getAllLectures);
+router.get('/', isAuthenticated, getAllLectures);
 router.post('/', isAuthenticated, checkIfInstructor, createLectures);
 router.put('/:id', isAuthenticated, checkIfInstructor, updateLecture);
 router.delete('/:id', isAuthenticated, checkIfInstructor, deleteLecture);

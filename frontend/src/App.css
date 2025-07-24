@@ -1,0 +1,18 @@
+.formContainer{
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.radioButton{
+    margin-right: 10px;
+}
+
+.searchInputLabel{
+    padding-right: 8px ;
+}
+
+.searchInput{
+    padding: 10px 8px;
+}
+

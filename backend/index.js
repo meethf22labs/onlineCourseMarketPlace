@@ -8,6 +8,7 @@ const enrollmentRoutes = require('./routes/enrollments.routes');
 const reviewRoutes = require("./routes/reviews.routes");
 const paymentRoutes = require("./routes/payments.routes");
 const instructorProfileRoutes = require('./routes/instructorProfile.routes');
+const categoriesRoutes = require('./routes/categories.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use('/api/instructor-profiles', instructorProfileRoutes);
+app.use("/api/categories", categoriesRoutes)
 
 
 // Database connection
