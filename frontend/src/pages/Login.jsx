@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api_url from "../apiConfig";
 import { enqueueSnackbar } from 'notistack';
+import { useUserStore } from '../contexts/loggedInUser.context';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function Login() {
     email: '',
     password: '',
   });
+  const setLoggedInUser = useUserStore((state) => state.setLoggedInUser)
 
 
   const handleChange = (e) => {
@@ -27,10 +29,13 @@ export default function Login() {
       body: JSON.stringify(formData),
     })
     const data = await response.json();
+    console.log(data)
     if (response.status === 200) {
       enqueueSnackbar({message: "Logged In successfully !!", variant: 'success'})
-      localStorage.setItem('token', data.token); 
-      navigate('/');
+      localStorage.setItem('token', data.token ); 
+      setLoggedInUser(data.user);
+      console.log("user stored in zustand:", data.user);
+      navigate('/app');
     }
     else {
       enqueueSnackbar({ message: data.message, variant: 'error'})

@@ -31,7 +31,7 @@ export default function Registration() {
     const data = await response.json();
     if (response.status === 201) {
       enqueueSnackbar({message: "Registered successfully !!", variant: 'success'})
-      navigate('/login');
+      navigate('/');
     }
     else {
         enqueueSnackbar({message: data.message, variant: 'error'})

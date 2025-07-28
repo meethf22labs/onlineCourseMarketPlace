@@ -20,10 +20,10 @@ const createPayment = async (req, res) => {
     //   );
     // }
 
-    return res.status(201).json({ message: "Payment recorded.", payment: newPayment });
+    return res.status(201).send({ message: "Payment recorded.", payment: newPayment });
   } catch (error) {
     console.error("Error creating payment:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).send({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -31,10 +31,10 @@ const getPayments = async (req, res) => {
   try {
     const userId = req.user.id;
     const payments = await Payment.findAll({ where: { user_id: userId } });
-    return res.status(200).json(payments);
+    return res.status(200).send(payments);
   } catch (error) {
     console.error("Error fetching payments:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
+    res.status(500).send({ message: "Internal server error", error: error.message });
   }
 };
 

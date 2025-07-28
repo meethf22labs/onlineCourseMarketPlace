@@ -15,17 +15,15 @@ function App() {
   <SnackbarProvider>
     <Router>
       <Routes>
+        <Route path='/' element={<Login/>}/>
+        <Route path='/registration' element={<Registration />}/>
 
-        <Route path='/' element={<Layout />} >
+        <Route path='/app' element={<Layout />} >
             <Route index element={<Home />} />
             <Route path="myCourses" element={<MyCourses />} />
             <Route path="lectures" element={<Lectures/>}/>
         </Route>
-
-        <Route path='/registration' element={<Registration />}/>
-        <Route path='/login' element={<Login/>}/>
-        <Route path='/myCourses' element={<MyCourses/>}/>
-        
+       
       </Routes>
     </Router>
   </SnackbarProvider>

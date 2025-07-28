@@ -7,10 +7,17 @@ import Button from '@mui/material/Button';
 import CardActionArea from '@mui/material/CardActionArea';
 import CardActions from '@mui/material/CardActions';
 import {useNavigate} from "react-router-dom";
+import { useCourseIdStore } from '../contexts/courseId.context';
 
 export default function CourseCard({ courseId, title, description, thumbnail_url, price }) {
-  console.log(courseId)
+  //console.log(courseId)
   const navigate = useNavigate();
+  let storeCourseId = useCourseIdStore((state) => state.setCurrentCourseId)
+
+  const handleLectures = () => {
+    storeCourseId({courseId: courseId, coursePrice: price})
+    navigate('lectures')
+  }
 
   return (
     <Card sx={{ maxWidth: 345, margin: 1, width: 300 }}>
@@ -41,7 +48,7 @@ export default function CourseCard({ courseId, title, description, thumbnail_url
           size="small"
           variant="contained"
           color="primary"
-          onClick={() => navigate('/lectures' , { state: { courseId: courseId } })}
+          onClick={handleLectures}
         >
           Show Lectures
         </Button>

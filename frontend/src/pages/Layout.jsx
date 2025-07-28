@@ -20,6 +20,9 @@ import ListItemText from "@mui/material/ListItemText";
 import SchoolSharpIcon from "@mui/icons-material/SchoolSharp";
 import HomeSharpIcon from "@mui/icons-material/HomeSharp";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useUserStore } from "../contexts/loggedInUser.context";
+import Person2Icon from '@mui/icons-material/Person2';
+
 
 const drawerWidth = 240;
 
@@ -105,6 +108,8 @@ export default function Layout() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
+  const currentLoggedInuser = useUserStore((state) => state.loggedInUser)
+  console.log(currentLoggedInuser);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -115,8 +120,8 @@ export default function Layout() {
   };
 
   const menuItems = [
-    { text: "Home", icon: <HomeSharpIcon />, path: "/" },
-    { text: "My Courses", icon: <SchoolSharpIcon />, path: "/myCourses" },
+    { text: "Home", icon: <HomeSharpIcon />, path: "/app" },
+    { text: "My Courses", icon: <SchoolSharpIcon />, path: "myCourses" },
   ];
 
   return (
@@ -215,47 +220,65 @@ export default function Layout() {
         <Divider />
 
         <List>
-          {["Logout"].map((text, index) => (
-            <ListItem key={index} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
-                onClick={() => navigate("/login")}
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? { justifyContent: "initial" }
-                    : { justifyContent: "center" },
-                ]}
-              >
-                <ListItemIcon
-                  sx={[
-                    {
-                      minWidth: 0,
-                      justifyContent: "center",
-                    },
-                    open ? { mr: 3 } : { mr: "auto" },
-                  ]}
-                >
-                  {<LogoutIcon />}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+  {["Logout"].map((text, index) => (
+    <ListItem key={index} disablePadding sx={{ display: "block" }}>
+      <ListItemButton
+        onClick={() => navigate("/")}
+        sx={[
+          {
+            minHeight: 48,
+            px: 2.5,
+          },
+          open ? { justifyContent: "initial" } : { justifyContent: "center" },
+        ]}
+      >
+        <ListItemIcon
+          sx={[
+            { minWidth: 0, justifyContent: "center" },
+            open ? { mr: 3 } : { mr: "auto" },
+          ]}
+        >
+          <LogoutIcon />
+        </ListItemIcon>
+        <ListItemText
+          primary={text}
+          sx={[open ? { opacity: 1 } : { opacity: 0 }]}
+        />
+      </ListItemButton>
+    </ListItem>
+  ))}
+</List>
+
+
+<Divider />
+<List>
+  <ListItem disablePadding sx={{ display: "block" }}>
+    <ListItemButton
+      sx={[
+        {
+          minHeight: 48,
+          px: 2.5,
+        },
+        open ? { justifyContent: "initial" } : { justifyContent: "center" },
+      ]}
+    >
+      <ListItemIcon
+        sx={[
+          { minWidth: 0, justifyContent: "center" },
+          open ? { mr: 3 } : { mr: "auto" },
+        ]}
+      >
+        <Person2Icon />
+      </ListItemIcon>
+      <ListItemText
+        primary={
+          currentLoggedInuser ? currentLoggedInuser.name : "No user logged in"
+        }
+        sx={[open ? { opacity: 1 } : { opacity: 0 }]}
+      />
+    </ListItemButton>
+  </ListItem>
+</List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />

@@ -31,7 +31,7 @@ const createLectures = async(req, res) => {
 
         const findCourse = await Course.findByPk(courseId);
         if (!findCourse) {
-            return res.status(404).json({ message: 'Course not found' });
+            return res.status(404).send({ message: 'Course not found' });
         }  
 
         const newLecture = await Lectures.create({
@@ -56,7 +56,7 @@ const updateLecture = async(req, res) => {
 
         const findLecture = await Lectures.findByPk(id);
         if (!findLecture) {
-            return res.status(404).json({ message: 'Lecture not found' });
+            return res.status(404).send({ message: 'Lecture not found' });
         }
 
         const update = await Lectures.update({
@@ -83,7 +83,7 @@ const deleteLecture = async(req, res) => {
 
         const findLecture = await Lectures.findByPk(id);
         if (!findLecture) {
-            return res.status(404).json({ message: 'Lecture not found' });
+            return res.status(404).send({ message: 'Lecture not found' });
         }
 
         const update = await Lectures.destroy({where: { id: id }});

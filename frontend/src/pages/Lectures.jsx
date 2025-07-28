@@ -1,41 +1,46 @@
 import React, { useEffect, useState } from "react";
 import api_url from "../apiConfig";
-import { useLocation } from "react-router-dom";
 import {
   Box,
   Card,
   CardContent,
   CardMedia,
   Typography,
-  CardActionArea,
   Grid,
   Link,
 } from "@mui/material";
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
+import { enqueueSnackbar } from "notistack";
+import PaymentModal from "../components/paymentModal";
+import { useCourseIdStore } from "../contexts/courseId.context";
+import { useUserStore } from "../contexts/loggedInUser.context";
 
 const Lectures = () => {
   const [lectures, setLectures] = useState([]);
-  const location = useLocation();
-  const { courseId } = location.state || {};
+  const [modalOpen, setModalOpen] = useState(false);
+  const [enrolled, setEnrolled] = useState(false);
+
+  const currentCourseId = useCourseIdStore((state) => state.currentCourseId?.courseId);
+  const currentLoggedInUser = useUserStore((state) => state.loggedInUser?.id);
 
   useEffect(() => {
     const fetchLectures = async () => {
       try {
         const response = await fetch(
-          `${api_url}/courses/${courseId}/lectures`,
+          `${api_url}/courses/${currentCourseId}/lectures`,
           {
             headers: {
               authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }
         );
+        const data = await response.json();
+
         if (!response.ok) {
-          console.error("Network response was not ok");
+          enqueueSnackbar({ message: data.error || "Failed to load lectures", variant: "error" });
           setLectures([]);
           return;
         }
-        const data = await response.json();
-        console.log(data);
 
         if (Array.isArray(data)) {
           setLectures(data);
@@ -49,12 +54,51 @@ const Lectures = () => {
       }
     };
 
-    if (courseId) {
+    if (currentCourseId) {
       fetchLectures();
-    } else {
-      setLectures([]);
     }
-  }, [courseId]);
+  }, [currentCourseId]);
+
+  useEffect(() => {
+    const checkEnrolled = async () => {
+      try {
+        const response = await fetch(`${api_url}/payments`, {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          const enrolledStatus = data.some((payment) =>
+              payment.user_id === currentLoggedInUser &&
+              payment.course_id === currentCourseId
+          );
+          setEnrolled(enrolledStatus);
+        } else {
+          console.warn("Payments API did not return an array:", data);
+          setEnrolled(false);
+        }
+      } catch (error) {
+        console.error("Error while checking enrollment:", error);
+        enqueueSnackbar({ message: "Failed to check enrollment", variant: "error" });
+        setEnrolled(false);
+      }
+    };
+
+    if (currentCourseId && currentLoggedInUser) {
+      checkEnrolled();
+    }
+  }, [currentCourseId, currentLoggedInUser]);
+
+  // ✅ Modal handlers
+  const handleEnrollClick = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
 
   return (
     <Box sx={{ padding: 4, backgroundColor: "#f9fafb", minHeight: "100vh" }}>
@@ -63,14 +107,26 @@ const Lectures = () => {
         sx={{ fontWeight: "bold", mb: 4, textAlign: "center" }}
       >
         Lectures
+        {!enrolled && (
+          <button
+            className="bg-blue-600 text-white text-2xl font-medium px-3 py-1.5 rounded-2xl cursor-pointer ml-3 hover:bg-blue-400 transition-all enrollButton"
+            onClick={handleEnrollClick}
+          >
+            Enroll Now
+          </button>
+        )}
       </Typography>
 
+      {/* Payment Modal */}
+      <PaymentModal open={modalOpen} onClose={handleModalClose} />
+
+      {/* Lectures List */}
       {lectures.length === 0 ? (
         <Typography variant="h6" sx={{ textAlign: "center", mt: 8 }}>
           No lectures available for this course.
         </Typography>
       ) : (
-        <Grid container spacing={3} justifyContent="center">
+        <Grid container spacing={2} justifyContent="center">
           {lectures.map((lecture) => (
             <Grid item xs={12} key={lecture.id}>
               <Card
@@ -84,12 +140,11 @@ const Lectures = () => {
                   width: "100%",
                 }}
               >
-                {/* Thumbnail */}
                 <CardMedia
                   component="img"
                   sx={{
-                    width: { xs: "100%", md: 300 },
-                    height: { xs: 200, md: "auto" },
+                    width: { xs: "100%", md: 200 },
+                    height: { xs: 100, md: "auto" },
                     objectFit: "cover",
                   }}
                   image={
@@ -99,7 +154,6 @@ const Lectures = () => {
                   alt={lecture.title}
                 />
 
-                {/* Content */}
                 <CardContent sx={{ flex: 1, p: 3 }}>
                   <Typography
                     gutterBottom
@@ -110,7 +164,10 @@ const Lectures = () => {
                     {lecture.title}
                   </Typography>
 
-                  <Typography variant="body1" sx={{ mb: 2, color: "text.secondary" }}>
+                  <Typography
+                    variant="body1"
+                    sx={{ mb: 2, color: "text.secondary" }}
+                  >
                     {lecture.description || "No description available."}
                   </Typography>
 
@@ -123,16 +180,22 @@ const Lectures = () => {
 
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <OndemandVideoIcon color="primary" />
-                    <Link
-                      href={lecture.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      underline="hover"
-                      color="primary"
-                      sx={{ fontWeight: "bold" }}
-                    >
-                      Watch Video
-                    </Link>
+                    {enrolled ? (
+                      <Link
+                        href={lecture.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        underline="hover"
+                        color="primary"
+                        sx={{ fontWeight: "bold" }}
+                      >
+                        Watch Video
+                      </Link>
+                    ) : (
+                      <Typography sx={{ color: "gray", fontWeight: "bold" }}>
+                        Payment Required
+                      </Typography>
+                    )}
                   </Box>
                 </CardContent>
               </Card>
@@ -145,3 +208,4 @@ const Lectures = () => {
 };
 
 export default Lectures;
+
